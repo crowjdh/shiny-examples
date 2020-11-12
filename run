@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ "$#" -lt 1 ]; then
+    printf "Usage: $script_name APP_DIR\n"
+    exit 1
+fi
+
+app_dir=$(pwd)/$1
+log_dir=$app_dir/shinylog
+
+echo $app_dir
+echo $log_dir
+if [ ! -d $app_dir ]; then
+    echo "qwerasdf"
+    exit 1
+fi
+
+docker run -ti --rm --name rs -p 80:3838 \
+    -v $app_dir:/srv/shiny-server/ \
+    -v $log_dir:/var/log/shiny-server/ \
+    crowjdh/rshiny-korean:latest

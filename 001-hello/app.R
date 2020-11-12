@@ -48,8 +48,8 @@ server <- function(input, output) {
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
 
     hist(x, breaks = bins, col = "#75AADB", border = "white",
-         xlab = "Waiting time to next eruption (in mins)",
-         main = "Histogram of waiting times")
+         xlab = "다음 분화까지 걸리는 시간 (in mins)",
+         main = "기다린 시간 히스토그램")
 
     })
 
