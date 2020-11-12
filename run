@@ -8,14 +8,13 @@ fi
 app_dir=$(pwd)/$1
 log_dir=$app_dir/shinylog
 
-echo $app_dir
-echo $log_dir
 if [ ! -d $app_dir ]; then
-    echo "qwerasdf"
+    echo "Supply app dir path"
     exit 1
 fi
 
-docker run -ti --rm --name rs -p 80:3838 \
+docker run -ti --rm --name rs -p 63112:3838 \
     -v $app_dir:/srv/shiny-server/ \
+    -v $(pwd)/shiny-server.conf:/etc/shiny-server/shiny-server.conf \
     -v $log_dir:/var/log/shiny-server/ \
-    crowjdh/rshiny-korean:latest
+    crowjdh/rshiny-korean:dependencies /init

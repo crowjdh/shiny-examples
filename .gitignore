@@ -23,3 +23,5 @@ logfile*.txt
 packrat.lock
 
 169-prerender-a/index.html
+
+shiny/shinylog/*

@@ -1,0 +1,136 @@
+su: ignoring --preserve-environment, it's mutually exclusive with --login
+Loading required package: dplyr
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: sp
+Loading required package: bit
+
+Attaching package: ‘bit’
+
+The following object is masked from ‘package:base’:
+
+    xor
+
+Attaching package bit64
+package:bit64 (c) 2011-2017 Jens Oehlschlaegel
+creators: integer64 runif64 seq :
+coercion: as.integer64 as.vector as.logical as.integer as.double as.character as.bitstring
+logical operator: ! & | xor != == < <= >= >
+arithmetic operator: + - * / %/% %% ^
+math: sign abs sqrt log log2 log10
+math: floor ceiling trunc round
+querying: is.integer64 is.vector [is.atomic} [length] format print str
+values: is.na is.nan is.finite is.infinite
+aggregation: any all min max range sum prod
+cumulation: diff cummin cummax cumsum cumprod
+access: length<- [ [<- [[ [[<-
+combine: c rep cbind rbind as.data.frame
+WARNING don't use as subscripts
+WARNING semantics differ from integer
+for more help type ?bit64
+
+Attaching package: ‘bit64’
+
+The following objects are masked from ‘package:base’:
+
+    :, %in%, is.double, match, order, rank
+
+
+Attaching package: ‘data.table’
+
+The following object is masked from ‘package:bit’:
+
+    setattr
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, first, last
+
+Registering fonts with R
+
+Attaching package: ‘shinydashboard’
+
+The following object is masked from ‘package:graphics’:
+
+    box
+
+Loading required package: sysfonts
+Loading required package: showtextdb
+
+Attaching package: ‘showtextdb’
+
+The following object is masked from ‘package:extrafont’:
+
+    font_install
+
+
+Attaching package: ‘rsconnect’
+
+The following object is masked from ‘package:shiny’:
+
+    serverInfo
+
+Google's Terms of Service: https://cloud.google.com/maps-platform/terms/.
+Please cite ggmap if you use it! See citation("ggmap") for details.
+
+Attaching package: ‘raster’
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+The following object is masked from ‘package:data.table’:
+
+    shift
+
+The following object is masked from ‘package:dplyr’:
+
+    select
+
+rgeos version: 0.5-5, (SVN revision 640)
+ GEOS runtime version: 3.8.0-CAPI-1.13.1 
+ Linking to sp version: 1.4-4 
+ Polygon checking: TRUE 
+
+
+Attaching package: ‘rgeos’
+
+The following object is masked from ‘package:bit’:
+
+    symdiff
+
+Checking rgeos availability: TRUE
+Loading required package: usethis
+
+Attaching package: ‘devtools’
+
+The following object is masked from ‘package:rsconnect’:
+
+    lint
+
+No renderer backend detected. gganimate will default to writing frames to separate files
+Consider installing:
+- the `gifski` package for gif output
+- the `av` package for video output
+and restarting the R session
+
+Attaching package: ‘gganimate’
+
+The following object is masked from ‘package:raster’:
+
+    animate
+
+Error: package or namespace load failed for ‘tidyverse’ in dyn.load(file, DLLpath = DLLpath, ...):
+ unable to load shared object '/usr/local/lib/R/site-library/xml2/libs/xml2.so':
+  libxml2.so.2: cannot open shared object file: No such file or directory
+Execution halted
+

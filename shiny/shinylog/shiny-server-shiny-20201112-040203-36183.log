@@ -1,0 +1,5 @@
+su: ignoring --preserve-environment, it's mutually exclusive with --login
+Error in library(spdplyr) : there is no package called ‘spdplyr’
+Calls: runApp ... sourceUTF8 -> eval -> eval -> ..stacktraceon.. -> library
+Execution halted
+
