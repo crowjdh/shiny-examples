@@ -13,8 +13,8 @@ if [ ! -d $app_dir ]; then
     exit 1
 fi
 
-docker run -ti --rm --name rs -p 63112:3838 \
+docker run -d --name rs -p 63112:3838 \
     -v $app_dir:/srv/shiny-server/ \
     -v $(pwd)/shiny-server.conf:/etc/shiny-server/shiny-server.conf \
     -v $log_dir:/var/log/shiny-server/ \
-    crowjdh/rshiny-korean:dependencies /init
+    crowjdh/rshiny-korean:latest /init
