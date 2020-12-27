@@ -41,31 +41,31 @@ require(devtools)
 # devtools::install_github("dgrtwo/gganimate")
 # rsconnect::setAccountInfo(name='minha', token='B614D14DAF5D24F08272324925C3B366', secret='yGxOc0kvA0iHfpRpRXmHUoomxSX3sAymIfCQ/Vva')
 
-load("RData/REGION_MVT.RData") # 전입전출 파이차트
-load("RData/REGION_CTPRVN.RData") # 전입전출 파이차트
+load("REGION_MVT.RData") # 전입전출 파이차트
+load("REGION_CTPRVN.RData") # 전입전출 파이차트
 
 region=unique(REGION_MVT$MVT_CTPRVN_NM)
 
-load("RData/TRNSFRN_count.RData") # 전입전출 막대그래프 
-load("RData/MVT_count.RData") # 전입전출 막대그래프 
+load("TRNSFRN_count.RData") # 전입전출 막대그래프 
+load("MVT_count.RData") # 전입전출 막대그래프 
 
-load('RData/total.RData')
-load('RData/worker.RData')
-load('RData/patent.RData')
-load('RData/new.RData')
-load('RData/venture.RData')
-load('RData/waegam.RData')
-load('RData/clean.RData')
-load('RData/mainbiz.RData')
-load('RData/innobiz.RData')
-load('RData/nep.RData')
-load('RData/net.RData')
+load('total.RData')
+load('worker.RData')
+load('patent.RData')
+load('new.RData')
+load('venture.RData')
+load('waegam.RData')
+load('clean.RData')
+load('mainbiz.RData')
+load('innobiz.RData')
+load('nep.RData')
+load('net.RData')
 
 mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(17)
 
-load('RData/KED4_abcd.RData') # 신용평가등급
-load('RData/d4.RData') # 조기경보등급
-load("RData/flows.RData") # 전입전출지도
+load('KED4_abcd.RData') # 신용평가등급
+load('d4.RData') # 조기경보등급
+load("flows.RData") # 전입전출지도
 pal <- colorFactor(brewer.pal(4, 'Set2'), flows$origins)
 
 font_add_google("Nanum Gothic", "nanumgothic")
@@ -73,7 +73,7 @@ showtext_auto()
 showtext_opts(dpi = 60)
 
 
-load('RData/BR_m.RData') #회생파산현황
+load('BR_m.RData') #회생파산현황
 region<-sort(unique(BR_m$CTPRVN_NM))
 
 
@@ -154,7 +154,7 @@ ui <- dashboardPage(skin = 'black',
                                           actionButton("Uncheck2", label="전체 선택 해제"))),
                                   fluidRow(
                                     box(width = 8, height="100%", title = tags$p("지역별 전입전출현황 지도", style = "font-size: 120%; font-weight: bold"), status = "info", solidHeader = TRUE,
-                                        leafletOutput("mymap", width="100%", height="1212px"))
+                                        leafletOutput("mymap", width="100%", height="1313px"))
                                   )),
                                 
                                 fluidRow(
@@ -258,8 +258,8 @@ ui <- dashboardPage(skin = 'black',
                                                              selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
                                                                           "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
                                                              inline = F),
-                                          actionButton("checkall3", label="전체 선택"),
-                                          actionButton("Uncheck3", label="전체 선택 해제")
+                                          actionButton("checkall", label="전체 선택"),
+                                          actionButton("Uncheck", label="전체 선택 해제")
                                           # ,actionButton("selectAll", label = "Select All"),
                                           # actionButton("deselectAll", label = "Deselect All")
                                           
@@ -344,10 +344,10 @@ ui <- dashboardPage(skin = 'black',
                                 
                                 fluidPage(
 
-                                  box(width = 6, height = "830px", title = tags$p("지역별 매출 지도", style = "font-size: 120%; font-weight: bold"), status = "success", solidHeader = TRUE
+                                  box(width = 6, height = "700px", title = tags$p("지역별 매출 지도", style = "font-size: 120%; font-weight: bold"), status = "success", solidHeader = TRUE
                                       ,imageOutput("preImage")
                                       ),
-                                  box(width = 6, height = "830px", title = tags$p("지역별 부채 지도", style = "font-size: 120%; font-weight: bold"), status = "danger", solidHeader = TRUE
+                                  box(width = 6, height = "700px", title = tags$p("지역별 부채 지도", style = "font-size: 120%; font-weight: bold"), status = "danger", solidHeader = TRUE
                                       ,imageOutput("preImage2")
                                       )
                                 )
@@ -413,30 +413,103 @@ server <- function(input, output, session) {
   
   output$plot3 <- renderPlotly({
     
-    load(paste0('RData/plot3_', input$dangergradeInput, '.RData'))
+    filtered2 <- d4 %>% filter(EW_GRAD_NM %in% input$dangergradeInput)
+    
+    d4_정상_plot<- filtered2 %>% plot_ly(x=~CTPRVN_NM) %>%
+      add_trace(y=~ratio, type='bar',frame=~DATE,textfont=list(size=20),
+                colors = mycolors,
+                color=~CTPRVN_NM,text = ~ratio,
+                hovertemplate = paste('%{x}', '<br>', input$dangergradeInput, ':', '%{y}', '%<br>'),
+                texttemplate = '%{y:.3r}%',
+                textposition = "outside") %>%
+      add_trace(y=~ratio_전국, type='scatter',mode='line',frame=~DATE, color=~KOR,
+                hovertemplate = paste('전국 평균 : %{y:.4r}')) %>%
+      animation_slider(
+        currentvalue = list(prefix = "DATE : ", font = list(color="red"))
+      ) %>%
+      layout(
+        xaxis = list(title = list(text="지역",
+                                  font=list(family='Nanum Gothic'))),
+        yaxis = list(title = "조기경보등급비율(%)"),
+        showlegend = F
+      )
+    
     d4_정상_plot
   })
   
   output$plot4 <- renderPlotly({
     
-    load(paste0('RData/plot4_', input$regionInput, '.RData'))
-    test
+    filtered3 <- d4 %>% filter(CTPRVN_NM %in% input$regionInput)
+    
+    filtered3 %>%
+      plot_ly(labels = ~EW_GRAD_NM, values = ~ratio, type = 'pie',
+              frame=~DATE,sort=F,rotation=0,direction='clockwise',opacity=0.8,
+              textfont=list(size=18,color='black'),#textinfo='label+percent',
+              marker=list(colors = c('#8dd3c7','#ffffb3','#bebada','#fb8072',
+                                     '#fdb462','#80b1d3','#b3de69','#fccde5')), hole=0.5,
+              title = list(text=paste(input$regionInput, " 조기경보등급 비율<br>시계열 그래프",sep=''),
+                           font=list(family='Nanum Gothic',size=15))) %>%
+      animation_slider(
+        currentvalue = list(prefix = "DATE ", font = list(color="red"))
+      ) %>% animation_opts(transition=500)
   })
+  
   
   output$plot5 <- renderPlotly({
     req(input$creditgradeInput)
     
-    load(paste0('RData/plot5_', input$creditgradeInput, '.RData'))
-    test
+    filtered4 <- KED4_abcd %>% filter(CREDT_ABCD %in% input$creditgradeInput)
+    
+    
+    filtered4 %>% plot_ly(x=~CTPRVN_NM) %>% 
+      add_trace(y=~ratio_ABCD, type='bar',frame=~DATE,textfont=list(size=20),
+                colors = mycolors,
+                color=~CTPRVN_NM,text = ~ratio_ABCD,
+                hovertemplate = paste(input$creditgradeInput,'등급<br>', '%{y:.4r}', '%<br>'),
+                texttemplate = '%{y:.2r}%',
+                textposition = "outside") %>%
+      add_trace(y=~ratio, type='scatter',mode='line',frame=~DATE, color=~KOR,
+                hovertemplate = paste('전국 평균 : %{y:.4r}')) %>%
+      layout(
+        title = list(text=paste("지역별 KED신용등급(",input$creditgradeInput,") 시계열 그래프",sep=''),
+                     yanchor='top',font=list(family='Nanum Gothic',size=18)),
+        xaxis = list(title = "지역"),
+        yaxis = list(title = "KED신용등급비율(%)"),
+        showlegend = F
+      ) %>%
+      animation_slider(
+        currentvalue = list(prefix = "DATE : ", font = list(color="red"))
+      )
   })
   
   output$plot6 <- renderPlotly({
     
-    load(paste0('RData/plot6_', input$regionaInput, '.RData'))
-    test
+    filtered5 <- KED4_abcd %>% filter(CTPRVN_NM %in% input$regionaInput)
+    
+    filtered5 %>%
+      plot_ly(labels = ~CREDT_ABCD, values = ~ratio_ABCD, type = 'pie',
+              frame=~DATE,sort=F,rotation=0,direction='clockwise',opacity=0.9,name=input$regionaInput,
+              #hoverinfo = 'label+value+text',
+              hovertemplate = paste('%{label}등급<br>', '%{value:.4r}', '%<br>'),
+              textfont=list(size=c(15),color='black'),textinfo='label+percent',
+              marker=list(colors = c('#ACC3FB','#C3FE96','#FDFA99','#FBC893','#FB8383'),
+                          line = list(width=0))
+              #hole=0.5,
+      ) %>%
+      layout(title = list(text=paste(input$regionaInput," KED신용등급 비율 시계열 그래프",sep=''),
+                          font=list(family='Nanum Gothic',size=18),x=0.53,y=0.95),
+             margin=list(t=120),
+             legend=list(x=0.8)) %>%
+      animation_slider(
+        currentvalue = list(prefix = "DATE ", font = list(color="red"))
+      ) %>% animation_opts(transition=500)
   })
   
+  
+  
+  
   output$mymap <- renderLeaflet({
+    
     
     filtered <- flows %>% filter(STDR_YM %in% input$yearInput,
                                  INDUTY_LCLAS_NM %in% input$worktypeInput,
@@ -453,10 +526,9 @@ server <- function(input, output, session) {
       addPolylines(data = filtered, weight = ~n/10, label = hover, 
                    group = ~origins, color = ~pal(origins)) %>%
       addLayersControl(overlayGroups = unique(filtered$origins), 
-                       options = layersControlOptions(collapsed = FALSE)) %>% 
-      # hideGroup(unique(filtered$origins)[-4])
-      hideGroup(c('경기', '경남', '경북', '서울', '전남', '전북', "제주", "충남", "충북", "강원", "세종"))
+                       options = layersControlOptions(collapsed = FALSE))
   })
+  
   
   output$plot8 <- renderPlotly({
     
@@ -676,8 +748,8 @@ server <- function(input, output, session) {
                                         paste('salesmap', '.gif', sep='')))
     
     list(src = filename,
-         width = 648,
-         height = 700)
+         width = 530,
+         height = 580)
     
   }, deleteFile = FALSE)
   
@@ -687,8 +759,8 @@ server <- function(input, output, session) {
                                         paste('debtsmap', '.gif', sep='')))
     
     list(src = filename,
-         width = 648,
-         height = 700)
+         width = 530,
+         height = 580)
     
   }, deleteFile = FALSE)
   
@@ -783,17 +855,25 @@ server <- function(input, output, session) {
       updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
                                                                                   "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"), selected=NULL)
       updateCheckboxGroupInput(session=session, inputId="companysizeInput", choices=c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"), selected=NULL)
-      
+
     }
   })
   
   observe({
     if (input$checkall > 0) {
+      updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
+                                                                                  "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
+                               selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
+                                            "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"))
       updateCheckboxGroupInput(session=session, inputId="companysizeInput", choices=c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"),
                                selected = c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"))
     }
     
     if (input$checkall < 1) {
+      updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
+                                                                                  "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
+                               selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
+                                            "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"))
       updateCheckboxGroupInput(session=session, inputId="companysizeInput", choices=c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"),
                                selected = c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"))
       
@@ -859,122 +939,6 @@ server <- function(input, output, session) {
       
     }
   })
-  
-  
-  observe({
-    if (input$Uncheck3 > 0) {
-      updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-                                                                                  "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"), selected=NULL)
-      
-    }
-  })
-  
-  observe({
-    if (input$checkall3 > 0) {
-      updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-                                                                                  "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
-                               selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-                                            "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"))
-    }
-    
-    if (input$checkall3 < 1) {
-      updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-                                                                                  "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
-                               selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-                                            "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"))
-      
-    }
-  })
-  
-  # observe({
-  #   if (input$Uncheck > 0) {
-  #     updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-  #                                                                                 "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"), selected=NULL)
-  #     updateCheckboxGroupInput(session=session, inputId="companysizeInput", choices=c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"), selected=NULL)
-  # 
-  #   }
-  # })
-  # 
-  # observe({
-  #   if (input$checkall > 0) {
-  #     updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-  #                                                                                 "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
-  #                              selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-  #                                           "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"))
-  #     updateCheckboxGroupInput(session=session, inputId="companysizeInput", choices=c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"),
-  #                              selected = c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"))
-  #   }
-  #   
-  #   if (input$checkall < 1) {
-  #     updateCheckboxGroupInput(session=session, inputId="regioncInput", choices=c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-  #                                                                                 "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"),
-  #                              selected = c("강원", "경기", "경남", "경북", "광주", "대구", "대전", "부산", "서울",
-  #                                           "세종", "울산", "인천", "전남", "전북", "제주", "충남", "충북"))
-  #     updateCheckboxGroupInput(session=session, inputId="companysizeInput", choices=c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"),
-  #                              selected = c("대기업", "중기업", "중견기업", "소기업", "미분류", "판단제외"))
-  #     
-  #   }
-  # })
-  # 
-  # observe({
-  #   if (input$Uncheck2 > 0) {
-  #     updateCheckboxGroupInput(session=session, inputId="worktypeInput", choices=c("가구 내 고용활동 및 달리 분류되지 않은 자가소비 생산활동",
-  #                                                                                  "건설업", "공공행정; 국방 및 사회보장 행정", "광업",
-  #                                                                                  "교육 서비스업", "국제 및 외국기관", "금융 및 보험업",
-  #                                                                                  "농업; 임업 및 어업", "도매 및 소매업", "보건업 및 사회복지 서비스업",
-  #                                                                                  "부동산업", "사업시설 관리; 사업 지원 및 임대 서비스업",
-  #                                                                                  "수도; 하수 및 폐기물 처리; 원료 재생업", "숙박 및 음식점업",
-  #                                                                                  "예술; 스포츠 및 여가관련 서비스업", "운수 및 창고업",
-  #                                                                                  "전기; 가스; 증기 및 공기조절 공급업", "전문; 과학 및 기술 서비스업",
-  #                                                                                  "정보통신업", "제조업", "협회 및 단체; 수리 및 기타 개인 서비스업"),
-  #                              selected = NULL)
-  #   }
-  # })
-  # 
-  # observe({
-  #   if (input$checkall2 > 0) {
-  #     updateCheckboxGroupInput(session=session, inputId="worktypeInput", choices=c("가구 내 고용활동 및 달리 분류되지 않은 자가소비 생산활동",
-  #                                                                                  "건설업", "공공행정; 국방 및 사회보장 행정", "광업",
-  #                                                                                  "교육 서비스업", "국제 및 외국기관", "금융 및 보험업",
-  #                                                                                  "농업; 임업 및 어업", "도매 및 소매업", "보건업 및 사회복지 서비스업",
-  #                                                                                  "부동산업", "사업시설 관리; 사업 지원 및 임대 서비스업",
-  #                                                                                  "수도; 하수 및 폐기물 처리; 원료 재생업", "숙박 및 음식점업",
-  #                                                                                  "예술; 스포츠 및 여가관련 서비스업", "운수 및 창고업",
-  #                                                                                  "전기; 가스; 증기 및 공기조절 공급업", "전문; 과학 및 기술 서비스업",
-  #                                                                                  "정보통신업", "제조업", "협회 및 단체; 수리 및 기타 개인 서비스업"),
-  #                              selected = c("가구 내 고용활동 및 달리 분류되지 않은 자가소비 생산활동",
-  #                                           "건설업", "공공행정; 국방 및 사회보장 행정", "광업",
-  #                                           "교육 서비스업", "국제 및 외국기관", "금융 및 보험업",
-  #                                           "농업; 임업 및 어업", "도매 및 소매업", "보건업 및 사회복지 서비스업",
-  #                                           "부동산업", "사업시설 관리; 사업 지원 및 임대 서비스업",
-  #                                           "수도; 하수 및 폐기물 처리; 원료 재생업", "숙박 및 음식점업",
-  #                                           "예술; 스포츠 및 여가관련 서비스업", "운수 및 창고업",
-  #                                           "전기; 가스; 증기 및 공기조절 공급업", "전문; 과학 및 기술 서비스업",
-  #                                           "정보통신업", "제조업", "협회 및 단체; 수리 및 기타 개인 서비스업"))
-  #   }
-  #   
-  #   if (input$checkall2 < 1) {
-  #     updateCheckboxGroupInput(session=session, inputId="worktypeInput", choices=c("가구 내 고용활동 및 달리 분류되지 않은 자가소비 생산활동",
-  #                                                                                  "건설업", "공공행정; 국방 및 사회보장 행정", "광업",
-  #                                                                                  "교육 서비스업", "국제 및 외국기관", "금융 및 보험업",
-  #                                                                                  "농업; 임업 및 어업", "도매 및 소매업", "보건업 및 사회복지 서비스업",
-  #                                                                                  "부동산업", "사업시설 관리; 사업 지원 및 임대 서비스업",
-  #                                                                                  "수도; 하수 및 폐기물 처리; 원료 재생업", "숙박 및 음식점업",
-  #                                                                                  "예술; 스포츠 및 여가관련 서비스업", "운수 및 창고업",
-  #                                                                                  "전기; 가스; 증기 및 공기조절 공급업", "전문; 과학 및 기술 서비스업",
-  #                                                                                  "정보통신업", "제조업", "협회 및 단체; 수리 및 기타 개인 서비스업"),
-  #                              selected = c("가구 내 고용활동 및 달리 분류되지 않은 자가소비 생산활동",
-  #                                           "건설업", "공공행정; 국방 및 사회보장 행정", "광업",
-  #                                           "교육 서비스업", "국제 및 외국기관", "금융 및 보험업",
-  #                                           "농업; 임업 및 어업", "도매 및 소매업", "보건업 및 사회복지 서비스업",
-  #                                           "부동산업", "사업시설 관리; 사업 지원 및 임대 서비스업",
-  #                                           "수도; 하수 및 폐기물 처리; 원료 재생업", "숙박 및 음식점업",
-  #                                           "예술; 스포츠 및 여가관련 서비스업", "운수 및 창고업",
-  #                                           "전기; 가스; 증기 및 공기조절 공급업", "전문; 과학 및 기술 서비스업",
-  #                                           "정보통신업", "제조업", "협회 및 단체; 수리 및 기타 개인 서비스업"))
-  #     
-  #   }
-  # })
   
   
   # observeEvent(
